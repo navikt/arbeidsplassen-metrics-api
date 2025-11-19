@@ -19,3 +19,10 @@ spec:
     requests:
       cpu: 200m
       memory: 128Mi
+  gcp:
+    bigQueryDatasets:
+      - name: arbeidsplassen_metrics
+        permission: READWRITE
+  env:
+    - name: BQ_DATASET_ID
+      value: arbeidsplassen_metrics

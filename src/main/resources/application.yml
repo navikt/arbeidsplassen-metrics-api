@@ -1,0 +1,3 @@
+gcp:
+  projectId: ${GCP_TEAM_PROJECT_ID:test-project}
+  datasetId: ${BQ_DATASET_ID:test-dataset}
