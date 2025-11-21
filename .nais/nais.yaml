@@ -19,6 +19,10 @@ spec:
     requests:
       cpu: 200m
       memory: 128Mi
+  ingresses:
+    { { #each ingresses as |url|}}
+        - {{url } }
+      {{/each}}
   gcp:
     bigQueryDatasets:
       - name: arbeidsplassen_metrics
