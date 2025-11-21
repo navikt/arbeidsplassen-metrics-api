@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/metrics")
-@CrossOrigin(origins = ["*"]) // Configure this properly for production
 class MetricsController(private val metricsService: MetricsService) {
 
     @PostMapping("/events")
@@ -32,14 +31,4 @@ class MetricsController(private val metricsService: MetricsService) {
             )
         }
     }
-
-    // TODO: Move health checks to a dedicated HealthController
-    @GetMapping("internal/isAlive")
-    fun isAlive(): ResponseEntity<HttpStatus> {
-        // TODO: Add real health check logic
-        return ResponseEntity<HttpStatus>(HttpStatus.OK)
-    }
-
-    @GetMapping("internal/isReady")
-    fun isReady() = ResponseEntity<HttpStatus>(HttpStatus.OK)
 }
