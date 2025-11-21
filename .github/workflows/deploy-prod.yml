@@ -12,4 +12,4 @@ jobs:
     with:
       TEAM: arbeidsplassen
       NAIS_RESOURCE: .nais/nais.yaml
-#      NAIS_VARS: .nais/prod.yaml
+      NAIS_VARS: .nais/prod.yaml

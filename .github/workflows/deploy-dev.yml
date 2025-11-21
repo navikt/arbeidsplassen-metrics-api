@@ -21,7 +21,7 @@ jobs:
       TEAM: arbeidsplassen
       BUILD_CACHE: maven
       NAIS_RESOURCE: .nais/nais.yaml
-#      NAIS_VARS: .nais/dev.yaml
+      NAIS_VARS: .nais/dev.yaml
       JAVA_VERSION: 21
       SKIP_DRAFT_RELEASE: ${{ github.ref_name != 'main' }}
     secrets:
