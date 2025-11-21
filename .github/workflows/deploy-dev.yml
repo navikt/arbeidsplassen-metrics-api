@@ -24,5 +24,3 @@ jobs:
       NAIS_VARS: .nais/dev.yaml
       JAVA_VERSION: 21
       SKIP_DRAFT_RELEASE: ${{ github.ref_name != 'main' }}
-    secrets:
-      NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
