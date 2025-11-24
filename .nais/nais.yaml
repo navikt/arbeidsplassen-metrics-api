@@ -5,7 +5,7 @@ metadata:
   namespace: arbeidsplassen
 spec:
   image: {{ image }}
-  port: 8080
+  port: 9051
   liveness:
     path: /internal/isAlive
     initialDelay: 15

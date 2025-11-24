@@ -1,3 +1,7 @@
+# Server Configuration
+server:
+  port: 9051
+
 # BigQuery Configuration
 gcp:
   projectId: ${GCP_TEAM_PROJECT_ID:test-project}
