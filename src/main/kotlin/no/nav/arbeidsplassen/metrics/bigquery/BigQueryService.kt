@@ -19,6 +19,31 @@ class BigQueryService(
 ) {
     private val logger = LoggerFactory.getLogger(BigQueryService::class.java)
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
+    private val metricsTable = MetricsTableDefinition()
+
+    init {
+        try {
+            createTableIfNotExists(metricsTable)
+        } catch (e: Exception) {
+            logger.error("Something failed when trying to fetch/create tables - $e")
+            throw e
+        }
+    }
+
+    fun createTableIfNotExists(tableDefinition: TableDefinition) {
+        try {
+            val table = bigQuery.getTable(TableId.of(datasetId, tableDefinition.tableName))
+            if (table != null && table.exists()) {
+                logger.info("Table ${tableDefinition.tableName} already exists in project $projectId")
+            } else {
+                logger.info("Table ${tableDefinition.tableName} does not exist. Create table for $projectId")
+                createTable(tableDefinition)
+            }
+        } catch (e: BigQueryException) {
+            logger.error("Table not found. \n$e")
+        }
+
+    }
 
     fun createTable(table: TableDefinition) {
         try {
