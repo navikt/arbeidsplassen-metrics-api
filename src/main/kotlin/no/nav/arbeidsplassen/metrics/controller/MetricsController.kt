@@ -31,4 +31,46 @@ class MetricsController(private val metricsService: MetricsService) {
             )
         }
     }
+
+    @PostMapping("/events/rating")
+    fun receiveRatingEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
+        return try {
+            metricsService.processEvent(event: MetricsEvent)
+            ResponseEntity.ok(
+                MetricsEventResponse(
+                    success = true,
+                    message = "Rating event received and queued for processing",
+                    eventId = event.eventId
+                )
+            )
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                MetricsEventResponse(
+                    success = false,
+                    message = "Failed to process rating event: ${e.message}"
+                )
+            )
+        }
+    }
+
+    @PostMapping("/events/cookie-consent")
+    fun receiveCookieConsentEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
+        return try {
+            metricsService.processEvent(event: MetricsEvent)
+            ResponseEntity.ok(
+                MetricsEventResponse(
+                    success = true,
+                    message = "Rating event received and queued for processing",
+                    eventId = event.eventId
+                )
+            )
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                MetricsEventResponse(
+                    success = false,
+                    message = "Failed to process rating event: ${e.message}"
+                )
+            )
+        }
+    }
 }

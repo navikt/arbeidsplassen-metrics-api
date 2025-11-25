@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/internal")
 class HealthCheckController {
-    // TODO: Move health checks to a dedicated HealthController
     @GetMapping("/isAlive")
     fun isAlive(): ResponseEntity<HttpStatus> {
         // TODO: Add real health check logic
