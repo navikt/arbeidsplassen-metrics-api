@@ -2,6 +2,8 @@ package no.nav.arbeidsplassen.metrics.bigquery
 
 import com.google.cloud.bigquery.BigQueryException
 import com.google.cloud.bigquery.BigQueryOptions
+import com.google.cloud.bigquery.InsertAllRequest
+import com.google.cloud.bigquery.InsertAllResponse
 import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.cloud.bigquery.TableInfo
@@ -18,16 +20,36 @@ class BigQueryService(
     private val logger = LoggerFactory.getLogger(BigQueryService::class.java)
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
 
-    fun createTable(tableDefinition: TableDefinition) {
+    fun createTable(table: TableDefinition) {
         try {
-            val tableId = TableId.of(datasetId, tableDefinition.tableName)
-            val tableDefinition = StandardTableDefinition.of(tableDefinition.schema)
-            val tableInfo = TableInfo.newBuilder(tableId, tableDefinition).build()
+            val tableId = TableId.of(datasetId, table.tableName)
+            val tableInfo = TableInfo.newBuilder(tableId, StandardTableDefinition.of(table.schema)).build()
 
             bigQuery.create(tableInfo)
-            logger.info("Table created successfully")
+            logger.info("Table ${table.tableName} created successfully")
         } catch (e: BigQueryException) {
             logger.error("Table was not created. \n$e")
         }
+    }
+
+    fun tableInsertRow(tableName: String, rowContent: Map<String, Any?>) {
+        try {
+            val response: InsertAllResponse = bigQuery.insertAll(
+                InsertAllRequest.newBuilder(TableId.of(datasetId, tableName))
+                    .addRow(rowContent)
+                    .build()
+            )
+
+            if (response.hasErrors()) {
+                for (entry in response.insertErrors.entries) {
+                    logger.error("Response error: \n${entry.value}")
+                }
+            } else {
+                logger.info("Row successfully inserted into table")
+            }
+        } catch (e: BigQueryException) {
+            logger.error("Insert operation not performed \n$e")
+        }
+
     }
 }
