@@ -7,10 +7,10 @@ import com.google.cloud.bigquery.InsertAllResponse
 import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.cloud.bigquery.TableInfo
+import com.google.cloud.bigquery.TimePartitioning
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-
 
 @Service
 class BigQueryService(
@@ -30,14 +30,14 @@ class BigQueryService(
         }
     }
 
-    fun createTableIfNotExists(tableDefinition: TableDefinition) {
+    private fun createTableIfNotExists(tableDefinition: TableDefinition) {
         try {
             val table = bigQuery.getTable(TableId.of(datasetId, tableDefinition.tableName))
             if (table != null && table.exists()) {
                 logger.info("Table ${tableDefinition.tableName} already exists in project $projectId")
             } else {
                 logger.info("Table ${tableDefinition.tableName} does not exist. Create table for $projectId")
-                createTable(tableDefinition)
+                createTableWithPartition(tableDefinition)
             }
         } catch (e: BigQueryException) {
             logger.error("Table not found. \n$e")
@@ -45,13 +45,15 @@ class BigQueryService(
 
     }
 
-    fun createTable(table: TableDefinition) {
+    private fun createTableWithPartition(tableDefinition: TableDefinition) {
         try {
-            val tableId = TableId.of(datasetId, table.tableName)
-            val tableInfo = TableInfo.newBuilder(tableId, StandardTableDefinition.of(table.schema)).build()
+            val tableId = TableId.of(datasetId, tableDefinition.tableName)
+            val partitioning = TimePartitioning.newBuilder(TimePartitioning.Type.MONTH).setField("createdAt").build()
+            val partitionedTableDefinition = StandardTableDefinition.newBuilder().setSchema(tableDefinition.schema).setTimePartitioning(partitioning).build()
+            val tableInfo = TableInfo.newBuilder(tableId, partitionedTableDefinition).build()
 
             bigQuery.create(tableInfo)
-            logger.info("Table ${table.tableName} created successfully")
+            logger.info("Table ${tableDefinition.tableName} created successfully")
         } catch (e: BigQueryException) {
             logger.error("Table was not created. \n$e")
         }
