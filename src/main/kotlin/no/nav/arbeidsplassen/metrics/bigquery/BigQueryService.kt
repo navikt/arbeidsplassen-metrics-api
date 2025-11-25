@@ -48,7 +48,7 @@ class BigQueryService(
     private fun createTableWithPartition(tableDefinition: TableDefinition) {
         try {
             val tableId = TableId.of(datasetId, tableDefinition.tableName)
-            val partitioning = TimePartitioning.newBuilder(TimePartitioning.Type.MONTH).setField("createdAt").build()
+            val partitioning = TimePartitioning.newBuilder(TimePartitioning.Type.MONTH).setField("created_at").build()
             val partitionedTableDefinition = StandardTableDefinition.newBuilder().setSchema(tableDefinition.schema).setTimePartitioning(partitioning).build()
             val tableInfo = TableInfo.newBuilder(tableId, partitionedTableDefinition).build()
 
