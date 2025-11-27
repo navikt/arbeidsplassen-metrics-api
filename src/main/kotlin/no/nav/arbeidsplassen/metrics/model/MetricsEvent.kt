@@ -2,16 +2,6 @@ package no.nav.arbeidsplassen.metrics.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-/**
- * Enum follows the naming convention used in frontend which is
- * "<Handling> - <Beskrivende element>" = "<Action> - <Description>"
- *
- */
-enum class EventNameEnum(val eventName: String) {
-    RATING("Klikk - Stilllingsøk rating"),
-    COOKIE_CONSENT("Klikk - Cookie samtykke"),
-}
-
 data class MetricsEvent(
     @JsonProperty("event_id")
     val eventId: String,
