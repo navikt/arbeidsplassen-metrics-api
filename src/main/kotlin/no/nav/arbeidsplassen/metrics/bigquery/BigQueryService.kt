@@ -41,8 +41,10 @@ class BigQueryService(
         tableInsertRow(metricsTable.tableName, rowContent)
     }
 
-    private val bqDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-    fun OffsetDateTime.toBqDateTime(): String = format(bqDatetimeFormatter)
+    companion object {
+        private val bqDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+        fun OffsetDateTime.toBqDateTime(): String = format(bqDatetimeFormatter)
+    }
 
     private fun createTableIfNotExists(tableDefinition: TableDefinition) {
         try {
