@@ -34,7 +34,7 @@ class BigQueryService(
         //TODO: test inject row
         val rowContent: Map<String, Any?> = mapOf(
             "event_id" to "123456",
-            "created_at" to OffsetDateTime.now().toBqDateTime(),
+            "created_at" to OffsetDateTime.of(2025, 1, 1, 12, 0, 0, 0, OffsetDateTime.now().offset).toBqDateTime(),
             "event_name" to "Test click or something",
             "event_data" to """{"boolean": true}"""
         )
