@@ -1,6 +1,5 @@
 package no.nav.arbeidsplassen.metrics.controller
 
-import no.nav.arbeidsplassen.metrics.model.EventNameEnum
 import no.nav.arbeidsplassen.metrics.model.MetricsEvent
 import no.nav.arbeidsplassen.metrics.model.MetricsEventResponse
 import no.nav.arbeidsplassen.metrics.service.MetricsService
@@ -12,61 +11,29 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/metrics")
 class MetricsController(private val metricsService: MetricsService) {
 
-    @PostMapping("/events/rating")
-    fun receiveRatingEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
-        if (event.eventName != EventNameEnum.RATING.eventName) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                MetricsEventResponse(
-                    success = false,
-                    message = "Invalid event for rating event"
-                )
-            )
-        }
-
-        return try {
-            metricsService.processEvent(event)
-            ResponseEntity.ok(
-                MetricsEventResponse(
-                    success = true,
-                    message = "Rating event received and queued for processing",
-                    eventId = event.eventId
-                )
-            )
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                MetricsEventResponse(
-                    success = false,
-                    message = "Failed to process rating event: ${e.message}"
-                )
-            )
-        }
+    companion object {
+        private val LOG = org.slf4j.LoggerFactory.getLogger(MetricsController::class.java)
     }
 
-    @PostMapping("/events/cookie-consent")
-    fun receiveCookieConsentEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
-        if (event.eventName != EventNameEnum.COOKIE_CONSENT.eventName) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                MetricsEventResponse(
-                    success = false,
-                    message = "Invalid event for cookie consent event"
-                )
-            )
-        }
-
+    @PostMapping("/event")
+    fun receiveEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
         return try {
             metricsService.processEvent(event)
+            LOG.info("${event.eventName} event with eventId ${event.eventId} received and queued for processing")
             ResponseEntity.ok(
                 MetricsEventResponse(
                     success = true,
-                    message = "Rating event received and queued for processing",
+                    message = "${event.eventName} event with eventId ${event.eventId} received and queued for processing",
                     eventId = event.eventId
                 )
             )
         } catch (e: Exception) {
+            LOG.warn("Failed to process ${event.eventName} event with eventId ${event.eventId}: ${e.message}")
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 MetricsEventResponse(
                     success = false,
-                    message = "Failed to process rating event: ${e.message}"
+                    message = "Failed to process ${event.eventName} event with eventId ${event.eventId}: ${e.message}",
+                    eventId = event.eventId
                 )
             )
         }
