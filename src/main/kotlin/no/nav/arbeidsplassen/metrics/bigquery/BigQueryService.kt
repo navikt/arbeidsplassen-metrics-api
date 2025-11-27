@@ -11,6 +11,9 @@ import com.google.cloud.bigquery.TimePartitioning
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
 
 @Service
 class BigQueryService(
@@ -28,7 +31,18 @@ class BigQueryService(
             logger.error("Something failed when trying to fetch/create tables - $e")
             throw e
         }
+        //TODO: test inject row
+        val rowContent: Map<String, Any?> = mapOf(
+            "event_id" to "123456",
+            "created_at" to OffsetDateTime.now().toBqDateTime(),
+            "event_name" to "Test click or something",
+            "event_data" to """{"boolean": true}"""
+        )
+        tableInsertRow(metricsTable.tableName, rowContent)
     }
+
+    private val bqDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+    fun OffsetDateTime.toBqDateTime(): String = format(bqDatetimeFormatter)
 
     private fun createTableIfNotExists(tableDefinition: TableDefinition) {
         try {
