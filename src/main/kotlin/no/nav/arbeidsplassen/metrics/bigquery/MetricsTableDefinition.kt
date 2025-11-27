@@ -8,11 +8,10 @@ import org.springframework.stereotype.Component
 @Component
 class MetricsTableDefinition: TableDefinition {
     override val tableName = "metrics_events"
-    //TODO: get metrics events in _
     override val schema: Schema = Schema.of(
         Field.of("event_id", StandardSQLTypeName.STRING),
         Field.of("created_at", StandardSQLTypeName.DATETIME),
         Field.of("event_name", StandardSQLTypeName.STRING),
-        Field.of("event_data", StandardSQLTypeName.JSON) //TODO: type
+        Field.of("event_data", StandardSQLTypeName.JSON)
         )
 }
