@@ -11,6 +11,8 @@ import com.google.cloud.bigquery.TimePartitioning
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class BigQueryService(
@@ -20,6 +22,11 @@ class BigQueryService(
     private val logger = LoggerFactory.getLogger(BigQueryService::class.java)
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
     private val metricsTable = MetricsTableDefinition()
+
+    companion object {
+        private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+        fun OffsetDateTime.toBigQueryDateTime(): String = format(bigQueryDatetimeFormatter)
+    }
 
     init {
         try {
@@ -66,7 +73,6 @@ class BigQueryService(
                     .addRow(rowContent)
                     .build()
             )
-
             if (response.hasErrors()) {
                 for (entry in response.insertErrors.entries) {
                     logger.error("Response error: \n${entry.value}")
@@ -77,6 +83,6 @@ class BigQueryService(
         } catch (e: BigQueryException) {
             logger.error("Insert operation not performed \n$e")
         }
-
     }
+
 }
