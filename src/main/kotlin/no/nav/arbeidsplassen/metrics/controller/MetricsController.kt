@@ -3,6 +3,7 @@ package no.nav.arbeidsplassen.metrics.controller
 import no.nav.arbeidsplassen.metrics.model.MetricsEvent
 import no.nav.arbeidsplassen.metrics.model.MetricsEventResponse
 import no.nav.arbeidsplassen.metrics.service.MetricsService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 class MetricsController(private val metricsService: MetricsService) {
 
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(MetricsController::class.java)
+        private val LOG = LoggerFactory.getLogger(MetricsController::class.java)
     }
 
     @PostMapping("/event")

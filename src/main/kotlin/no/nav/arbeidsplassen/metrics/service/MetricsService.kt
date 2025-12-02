@@ -13,7 +13,7 @@ class MetricsService(private val bigQueryService: BigQueryService) {
 
     fun processEvent(event: MetricsEvent) {
         val biqQueryRow = event.toBigQueryRow()
-        bigQueryService.tableInsertRow(metricsTable.tableName, biqQueryRow)
         logger.info("Try to insert event into BigQuery")
+        bigQueryService.tableInsertRow(metricsTable.tableName, biqQueryRow)
     }
 }
