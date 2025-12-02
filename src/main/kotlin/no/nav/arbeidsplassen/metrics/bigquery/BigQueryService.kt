@@ -25,7 +25,7 @@ class BigQueryService(
     private val metricsTable = MetricsTableDefinition()
 
     companion object {
-        private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+        private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
         fun OffsetDateTime.toBigQueryDateTime(): String = format(bigQueryDatetimeFormatter)
     }
 
