@@ -1,27 +1,24 @@
 package no.nav.arbeidsplassen.metrics.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
+import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.CREATED_AT
+import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_DATA
+import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_ID
+import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_NAME
 import java.time.OffsetDateTime
+import java.util.UUID
 
 data class MetricsEvent(
-    @JsonProperty("event_id")
-    val eventId: String,
-
-    @JsonProperty("created_at")
-    val createdAt: String,
-
-    @JsonProperty("event_name")
+    val eventId: UUID,
+    val createdAt: OffsetDateTime,
     val eventName: String,
-
-    @JsonProperty("event_data")
     val eventData: Map<String, Any>?
 ) {
     fun toBigQueryRow() = hashMapOf<String, Any?>(
-        "event_id" to eventId,
-        "created_at" to OffsetDateTime.parse(createdAt).toBigQueryDateTime(),
-        "event_name" to eventName,
-        "event_data" to eventData
+        EVENT_ID to eventId,
+        CREATED_AT to createdAt.toBigQueryDateTime(),
+        EVENT_NAME to eventName,
+        EVENT_DATA to eventData
     )
 }
 
