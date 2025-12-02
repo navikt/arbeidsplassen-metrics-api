@@ -7,11 +7,17 @@ import org.springframework.stereotype.Component
 
 @Component
 class MetricsTableDefinition: TableDefinition {
+    companion object {
+        const val EVENT_ID = "event_id"
+        const val CREATED_AT = "created_at"
+        const val EVENT_NAME = "event_name"
+        const val EVENT_DATA = "event_data"
+    }
     override val tableName = "metrics_events"
     override val schema: Schema = Schema.of(
-        Field.of("event_id", StandardSQLTypeName.STRING),
-        Field.of("created_at", StandardSQLTypeName.DATETIME),
-        Field.of("event_name", StandardSQLTypeName.STRING),
-        Field.of("event_data", StandardSQLTypeName.JSON)
+        Field.of(EVENT_ID, StandardSQLTypeName.STRING),
+        Field.of(CREATED_AT, StandardSQLTypeName.DATETIME),
+        Field.of(EVENT_NAME, StandardSQLTypeName.STRING),
+        Field.of(EVENT_DATA, StandardSQLTypeName.JSON)
         )
 }
