@@ -30,7 +30,6 @@ class MetricsControllerTest {
             null
         )
         every { metricsService.processEvent(event) } returns Unit
-
         val response = mockMvc.post("/api/v1/metrics/event") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(event)
