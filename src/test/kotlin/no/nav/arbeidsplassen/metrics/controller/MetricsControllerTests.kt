@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.OffsetDateTime
+import java.util.UUID
 
 class MetricsControllerTest {
 
@@ -24,15 +25,24 @@ class MetricsControllerTest {
     @Test
     fun `receiveEvent should return 200 when valid event is received`() {
         val event = MetricsEvent(
-            "123",
-            OffsetDateTime.now().toString(),
-            "test_event",
-            null
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = "test_event",
+            eventData = null
         )
-        every { metricsService.processEvent(event) } returns Unit
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": null
+            }
+        """.trimIndent()
+        every { metricsService.processEvent(any()) } returns Unit
+
         val response = mockMvc.post("/api/v1/metrics/event") {
             contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(event)
+            content = eventAsString
         }.andExpect {
             status { isOk() }
         }.andReturn()
@@ -41,8 +51,28 @@ class MetricsControllerTest {
             response.response.contentAsString,
             MetricsEventResponse::class.java
         )
-        verify(exactly = 1) { metricsService.processEvent(event) }
+        verify(exactly = 1) { metricsService.processEvent(match {
+            it.eventId == event.eventId &&
+            it.eventName == event.eventName
+        }) }
         assert(responseEvent.success)
         assert(responseEvent.eventId == event.eventId)
+    }
+
+    @Test
+    fun `receiveEvent should return 400 when invalid event is received`() {
+        val response = mockMvc.post("/api/v1/metrics/event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = """
+                {
+                    "eventId":"123",
+                    "createdAt":"2025-11-27T14:14:56.571423161+01:00",
+                    "eventName":"test_event",
+                    "eventData":null
+                }
+            """.trimIndent()
+        }.andExpect {
+            status { isBadRequest() }
+        }.andReturn()
     }
 }
