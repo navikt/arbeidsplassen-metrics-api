@@ -32,10 +32,10 @@ class MetricsControllerTest {
         )
         val eventAsString = """
             {
-                "event_id": "${event.eventId}",
-                "created_at": "${event.createdAt}",
-                "event_name": "${event.eventName}",
-                "event_data": null
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": null
             }
         """.trimIndent()
         every { metricsService.processEvent(any()) } returns Unit
@@ -65,10 +65,10 @@ class MetricsControllerTest {
             contentType = MediaType.APPLICATION_JSON
             content = """
                 {
-                    "event_id":"123",
-                    "created_at":"2025-11-27T14:14:56.571423161+01:00",
-                    "event_name":"test_event",
-                    "event_data":null
+                    "eventId":"123",
+                    "createdAt":"2025-11-27T14:14:56.571423161+01:00",
+                    "eventName":"test_event",
+                    "eventData":null
                 }
             """.trimIndent()
         }.andExpect {

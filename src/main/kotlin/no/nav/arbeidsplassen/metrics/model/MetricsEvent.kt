@@ -6,16 +6,9 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 data class MetricsEvent(
-    @param:JsonProperty("event_id")
     val eventId: UUID,
-
-    @param:JsonProperty("created_at")
     val createdAt: OffsetDateTime,
-
-    @param:JsonProperty("event_name")
     val eventName: String,
-
-    @param:JsonProperty("event_data")
     val eventData: Map<String, Any>?
 ) {
     fun toBigQueryRow() = hashMapOf<String, Any?>(
