@@ -8,6 +8,7 @@ import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.cloud.bigquery.TableInfo
 import com.google.cloud.bigquery.TimePartitioning
+import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.CREATED_AT
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -24,7 +25,7 @@ class BigQueryService(
     private val metricsTable = MetricsTableDefinition()
 
     companion object {
-        private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+        private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
         fun OffsetDateTime.toBigQueryDateTime(): String = format(bigQueryDatetimeFormatter)
     }
 
@@ -55,7 +56,7 @@ class BigQueryService(
     private fun createTableWithPartition(tableDefinition: TableDefinition) {
         try {
             val tableId = TableId.of(datasetId, tableDefinition.tableName)
-            val partitioning = TimePartitioning.newBuilder(TimePartitioning.Type.MONTH).setField("created_at").build()
+            val partitioning = TimePartitioning.newBuilder(TimePartitioning.Type.MONTH).setField(CREATED_AT).build()
             val partitionedTableDefinition = StandardTableDefinition.newBuilder().setSchema(tableDefinition.schema).setTimePartitioning(partitioning).build()
             val tableInfo = TableInfo.newBuilder(tableId, partitionedTableDefinition).build()
 
