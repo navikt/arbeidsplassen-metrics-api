@@ -1,7 +1,7 @@
 package no.nav.arbeidsplassen.metrics.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-//import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
+import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -20,7 +20,7 @@ data class MetricsEvent(
 ) {
     fun toBigQueryRow() = hashMapOf<String, Any?>(
         "event_id" to eventId,
-        //"created_at" to createdAt,
+        "created_at" to createdAt.toBigQueryDateTime(),
         "event_name" to eventName,
         "event_data" to eventData
     )
