@@ -16,7 +16,7 @@ data class MetricsEvent(
 ) {
     fun toBigQueryRow() = hashMapOf<String, Any?>(
         EVENT_ID to eventId,
-        CREATED_AT to OffsetDateTime.parse(createdAt).toBigQueryDateTime(),
+        CREATED_AT to createdAt.toBigQueryDateTime(),
         EVENT_NAME to eventName,
         EVENT_DATA to eventData
     )
