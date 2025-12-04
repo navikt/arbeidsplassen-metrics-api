@@ -1,25 +1,26 @@
 package no.nav.arbeidsplassen.metrics.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
+//import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
 import java.time.OffsetDateTime
+import java.util.UUID
 
 data class MetricsEvent(
-    @JsonProperty("event_id")
-    val eventId: String,
+    @param:JsonProperty("event_id")
+    val eventId: UUID,
 
-    @JsonProperty("created_at")
-    val createdAt: String,
+    @param:JsonProperty("created_at")
+    val createdAt: OffsetDateTime,
 
-    @JsonProperty("event_name")
+    @param:JsonProperty("event_name")
     val eventName: String,
 
-    @JsonProperty("event_data")
+    @param:JsonProperty("event_data")
     val eventData: Map<String, Any>?
 ) {
     fun toBigQueryRow() = hashMapOf<String, Any?>(
         "event_id" to eventId,
-        "created_at" to OffsetDateTime.parse(createdAt).toBigQueryDateTime(),
+        //"created_at" to createdAt,
         "event_name" to eventName,
         "event_data" to eventData
     )
@@ -28,5 +29,5 @@ data class MetricsEvent(
 data class MetricsEventResponse(
     val success: Boolean,
     val message: String,
-    val eventId: String? = null
+    val eventId: UUID? = null
 )
