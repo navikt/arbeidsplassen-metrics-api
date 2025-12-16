@@ -30,3 +30,6 @@ spec:
   env:
     - name: BQ_DATASET_ID
       value: arbeidsplassen_metrics
+  accessPolicy:
+    inbound:
+      - application: pam-stillingsok
