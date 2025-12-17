@@ -32,4 +32,5 @@ spec:
       value: arbeidsplassen_metrics
   accessPolicy:
     inbound:
-      - application: pam-stillingsok
+      rules:
+        - application: pam-stillingsok
