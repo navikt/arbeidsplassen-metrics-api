@@ -34,3 +34,4 @@ spec:
     inbound:
       rules:
         - application: pam-stillingsok
+          namespace: teampam
