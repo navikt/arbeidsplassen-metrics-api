@@ -1,5 +1,6 @@
 package no.nav.arbeidsplassen.metrics.model
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.arbeidsplassen.metrics.bigquery.BigQueryService.Companion.toBigQueryDateTime
 import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.CREATED_AT
 import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_DATA
@@ -14,12 +15,16 @@ data class MetricsEvent(
     val eventName: String,
     val eventData: Map<String, Any>?
 ) {
-    fun toBigQueryRow() = hashMapOf<String, Any?>(
-        EVENT_ID to eventId,
-        CREATED_AT to createdAt.toBigQueryDateTime(),
-        EVENT_NAME to eventName,
-        EVENT_DATA to eventData
-    )
+    fun toBigQueryRow(): HashMap<String, Any?> {
+        val objectMapper = jacksonObjectMapper()
+        val eventDataJson = objectMapper.writeValueAsString(eventData)
+        return hashMapOf(
+            EVENT_ID to eventId.toString(),
+            CREATED_AT to createdAt.toBigQueryDateTime(),
+            EVENT_NAME to eventName,
+            EVENT_DATA to eventDataJson
+        )
+    }
 }
 
 data class MetricsEventResponse(
