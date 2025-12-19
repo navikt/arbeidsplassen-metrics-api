@@ -49,6 +49,7 @@ class BigQueryService(
             }
         } catch (e: BigQueryException) {
             logger.error("Table not found. \n$e")
+            throw e
         }
 
     }
@@ -64,6 +65,7 @@ class BigQueryService(
             logger.info("Table ${tableDefinition.tableName} created successfully")
         } catch (e: BigQueryException) {
             logger.error("Table was not created. \n$e")
+            throw e
         }
     }
 
