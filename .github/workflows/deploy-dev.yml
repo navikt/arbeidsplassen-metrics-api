@@ -1,7 +1,6 @@
 name: build-deploy-dev
 on:
   workflow_dispatch:
-
   push:
     paths-ignore:
       - "**.md"
@@ -12,6 +11,7 @@ on:
       - ".github/workflows/dependabot-auto-merge.yml"
     branches:
       - '**'
+
 jobs:
   call-workflow:
     permissions:
