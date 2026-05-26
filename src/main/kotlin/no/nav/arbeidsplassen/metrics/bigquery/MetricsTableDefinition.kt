@@ -21,3 +21,21 @@ class MetricsTableDefinition: TableDefinition {
         Field.of(EVENT_DATA, StandardSQLTypeName.JSON)
         )
 }
+
+@Component
+class EnrichmentTableDefinition: TableDefinition {
+    companion object {
+        const val EVENT_ID = "event_id"
+        const val CREATED_AT = "created_at"
+        const val EVENT_NAME = "event_name"
+        const val EVENT_DATA = "event_data"
+    }
+
+    override val tableName = "enrichment_events"
+    override val schema: Schema = Schema.of(
+        Field.of(MetricsTableDefinition.EVENT_ID, StandardSQLTypeName.STRING),
+        Field.of(MetricsTableDefinition.CREATED_AT, StandardSQLTypeName.DATETIME),
+        Field.of(MetricsTableDefinition.EVENT_NAME, StandardSQLTypeName.STRING),
+        Field.of(MetricsTableDefinition.EVENT_DATA, StandardSQLTypeName.JSON)
+    )
+}

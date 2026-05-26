@@ -23,6 +23,7 @@ class BigQueryService(
     private val logger = LoggerFactory.getLogger(BigQueryService::class.java)
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
     private val metricsTable = MetricsTableDefinition()
+    private val enrichmentTable = EnrichmentTableDefinition()
 
     companion object {
         private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
@@ -33,7 +34,14 @@ class BigQueryService(
         try {
             createTableIfNotExists(metricsTable)
         } catch (e: Exception) {
-            logger.error("Something failed when trying to fetch/create tables - $e")
+            logger.error("Something failed when trying to fetch/create metrics table - $e")
+            throw e
+        }
+
+        try {
+            createTableIfNotExists(enrichmentTable)
+        } catch (e: Exception) {
+            logger.error("Something failed when trying to fetch/create enrichment table - $e")
             throw e
         }
     }
