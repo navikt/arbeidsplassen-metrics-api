@@ -82,14 +82,14 @@ class MetricsControllerTest {
             eventId = UUID.randomUUID(),
             createdAt = OffsetDateTime.now(),
             eventName = "Opprettet - Tilleggsdata",
-            eventData = mapOf("kilde" to "frontend")
+            eventData = mapOf("kilde" to "backend")
         )
         val eventAsString = """
             {
                 "eventId": "${event.eventId}",
                 "createdAt": "${event.createdAt}",
                 "eventName": "${event.eventName}",
-                "eventData": {"kilde":"frontend"}
+                "eventData": {"kilde":"backend"}
             }
         """.trimIndent()
         every { metricsService.processEvent(any()) } returns Unit
@@ -121,14 +121,14 @@ class MetricsControllerTest {
             eventId = UUID.randomUUID(),
             createdAt = OffsetDateTime.now(),
             eventName = "Ugyldig - Tilleggsdata",
-            eventData = mapOf("kilde" to "frontend")
+            eventData = mapOf("kilde" to "backend")
         )
         val eventAsString = """
             {
                 "eventId": "${event.eventId}",
                 "createdAt": "${event.createdAt}",
                 "eventName": "${event.eventName}",
-                "eventData": {"kilde":"frontend"}
+                "eventData": {"kilde":"backend"}
             }
         """.trimIndent()
 
@@ -140,6 +140,6 @@ class MetricsControllerTest {
         }.andReturn()
 
         verify(exactly = 0) { metricsService.processEvent(any()) }
-        assert(response.response.contentAsString.contains("Expected 'Opprettet - Tilleggsdata'"))
+        assert(response.response.contentAsString.contains("Invalid enrichment eventName"))
     }
 }
