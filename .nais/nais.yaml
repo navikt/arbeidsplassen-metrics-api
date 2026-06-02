@@ -35,3 +35,4 @@ spec:
       rules:
         - application: pam-stillingsok
           namespace: teampam
+        - application: arbeidsplassen-search-indexer
