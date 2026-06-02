@@ -39,4 +39,27 @@ class MetricsController(private val metricsService: MetricsService) {
             )
         }
     }
+    @PostMapping("/enrichment-event")
+    fun receiveEnrichmentEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
+        return try {
+            metricsService.processEvent(event)
+            LOG.info("${event.eventName} Enrichment event with eventId ${event.eventId} received and queued for processing")
+            ResponseEntity.ok(
+                MetricsEventResponse(
+                    success = true,
+                    message = "${event.eventName} event with eventId ${event.eventId} received and queued for processing",
+                    eventId = event.eventId
+                )
+            )
+        } catch (e: Exception) {
+            LOG.warn("Failed to process ${event.eventName} event with eventId ${event.eventId}: ${e.message}")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                MetricsEventResponse(
+                    success = false,
+                    message = "Failed to process ${event.eventName} event with eventId ${event.eventId}: ${e.message}",
+                    eventId = event.eventId
+                )
+            )
+        }
+    }
 }
