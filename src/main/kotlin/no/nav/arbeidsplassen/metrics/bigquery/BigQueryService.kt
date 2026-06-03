@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @Service
 class BigQueryService(
@@ -27,7 +28,7 @@ class BigQueryService(
 
     companion object {
         private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        fun OffsetDateTime.toBigQueryDateTime(): String = format(bigQueryDatetimeFormatter)
+        fun OffsetDateTime.toBigQueryDateTime(): String = truncatedTo(ChronoUnit.MICROS).format(bigQueryDatetimeFormatter)
     }
 
     init {
