@@ -33,9 +33,9 @@ class EnrichmentTableDefinition: TableDefinition {
 
     override val tableName = "enrichment_events"
     override val schema: Schema = Schema.of(
-        Field.of(MetricsTableDefinition.EVENT_ID, StandardSQLTypeName.STRING),
-        Field.of(MetricsTableDefinition.CREATED_AT, StandardSQLTypeName.DATETIME),
-        Field.of(MetricsTableDefinition.EVENT_NAME, StandardSQLTypeName.STRING),
-        Field.of(MetricsTableDefinition.EVENT_DATA, StandardSQLTypeName.JSON)
+        Field.of(EVENT_ID, StandardSQLTypeName.STRING),
+        Field.of(CREATED_AT, StandardSQLTypeName.DATETIME),
+        Field.of(EVENT_NAME, StandardSQLTypeName.STRING),
+        Field.of(EVENT_DATA, StandardSQLTypeName.JSON)
     )
 }
