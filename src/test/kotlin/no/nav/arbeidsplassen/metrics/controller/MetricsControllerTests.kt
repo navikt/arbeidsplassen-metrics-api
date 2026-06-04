@@ -92,7 +92,7 @@ class MetricsControllerTest {
                 "eventData": {"kilde":"backend"}
             }
         """.trimIndent()
-        every { metricsService.processEvent(any()) } returns Unit
+        every { metricsService.processEnrichmentEvent(any()) } returns Unit
 
         val response = mockMvc.post("/api/v1/metrics/enrichment-event") {
             contentType = MediaType.APPLICATION_JSON
@@ -106,7 +106,7 @@ class MetricsControllerTest {
             MetricsEventResponse::class.java
         )
         verify(exactly = 1) {
-            metricsService.processEvent(match {
+            metricsService.processEnrichmentEvent(match {
                 it.eventId == event.eventId &&
                     it.eventName == event.eventName
             })
