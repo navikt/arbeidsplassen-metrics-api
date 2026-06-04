@@ -55,7 +55,7 @@ class MetricsController(private val metricsService: MetricsService) {
         }
 
         return try {
-            metricsService.processEvent(event)
+            metricsService.processEnrichmentEvent(event)
             LOG.info("'${event.eventName}' enrichment event with eventId ${event.eventId} received and queued for processing")
             ResponseEntity.ok(
                 MetricsEventResponse(
