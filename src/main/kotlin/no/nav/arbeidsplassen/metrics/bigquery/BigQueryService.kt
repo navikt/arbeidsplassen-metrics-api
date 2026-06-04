@@ -21,7 +21,7 @@ class BigQueryService(
     @param:Value("\${gcp.projectId}") private val projectId: String,
     @param:Value("\${gcp.datasetId}") private val datasetId: String,
 ) {
-    private val logger = LoggerFactory.getLogger(BigQueryService::class.java)
+    private val LOG = LoggerFactory.getLogger(BigQueryService::class.java)
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
     private val metricsTable = MetricsTableDefinition()
     private val enrichmentTable = EnrichmentTableDefinition()
@@ -35,14 +35,14 @@ class BigQueryService(
         try {
             createTableIfNotExists(metricsTable)
         } catch (e: Exception) {
-            logger.error("Something failed when trying to fetch/create metrics table - $e")
+            LOG.error("Something failed when trying to fetch/create metrics table - $e")
             throw e
         }
 
         try {
             createTableIfNotExists(enrichmentTable)
         } catch (e: Exception) {
-            logger.error("Something failed when trying to fetch/create enrichment table - $e")
+            LOG.error("Something failed when trying to fetch/create enrichment table - $e")
             throw e
         }
     }
@@ -51,13 +51,13 @@ class BigQueryService(
         try {
             val table = bigQuery.getTable(TableId.of(datasetId, tableDefinition.tableName))
             if (table != null && table.exists()) {
-                logger.info("Table ${tableDefinition.tableName} already exists in project $projectId")
+                LOG.info("Table ${tableDefinition.tableName} already exists in project $projectId")
             } else {
-                logger.info("Table ${tableDefinition.tableName} does not exist. Create table for $projectId")
+                LOG.info("Table ${tableDefinition.tableName} does not exist. Create table for $projectId")
                 createTableWithPartition(tableDefinition)
             }
         } catch (e: BigQueryException) {
-            logger.error("Table not found. \n$e")
+            LOG.error("Table not found. \n$e")
         }
 
     }
@@ -70,9 +70,9 @@ class BigQueryService(
             val tableInfo = TableInfo.newBuilder(tableId, partitionedTableDefinition).build()
 
             bigQuery.create(tableInfo)
-            logger.info("Table ${tableDefinition.tableName} created successfully")
+            LOG.info("Table ${tableDefinition.tableName} created successfully")
         } catch (e: BigQueryException) {
-            logger.error("Table was not created. \n$e")
+            LOG.error("Table was not created. \n$e")
         }
     }
 
@@ -85,13 +85,13 @@ class BigQueryService(
             )
             if (response.hasErrors()) {
                 for (entry in response.insertErrors.entries) {
-                    logger.error("Response error: \n${entry.value}")
+                    LOG.error("Response error: \n${entry.value}")
                 }
             } else {
-                logger.info("Row successfully inserted into table")
+                LOG.info("Row successfully inserted into table")
             }
         } catch (e: BigQueryException) {
-            logger.error("Insert operation not performed \n$e")
+            LOG.error("Insert operation not performed \n$e")
         }
     }
 
