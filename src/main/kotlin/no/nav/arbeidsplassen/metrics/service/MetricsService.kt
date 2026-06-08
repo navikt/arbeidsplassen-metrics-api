@@ -20,7 +20,7 @@ class MetricsService(private val bigQueryService: BigQueryService) {
     }
 
     fun processEnrichmentEvent(event: MetricsEvent) {
-        val biqQueryRow = event.toBigQueryRow()
+        val biqQueryRow = event.toEnrichmentBigQueryRow()
         logger.info("Try to insert enrichment event into BigQuery")
         bigQueryService.tableInsertRow(enrichmentTable.tableName, biqQueryRow)
     }
