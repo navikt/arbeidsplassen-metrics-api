@@ -4,6 +4,7 @@ import com.google.cloud.bigquery.BigQueryException
 import com.google.cloud.bigquery.BigQueryOptions
 import com.google.cloud.bigquery.InsertAllRequest
 import com.google.cloud.bigquery.InsertAllResponse
+import com.google.cloud.bigquery.Schema
 import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.cloud.bigquery.TableInfo
@@ -52,6 +53,7 @@ class BigQueryService(
             val table = bigQuery.getTable(TableId.of(datasetId, tableDefinition.tableName))
             if (table != null && table.exists()) {
                 LOG.info("Table ${tableDefinition.tableName} already exists in project $projectId")
+                updateSchemaIfNeeded(tableDefinition, table)
             } else {
                 LOG.info("Table ${tableDefinition.tableName} does not exist. Create table for $projectId")
                 createTableWithPartition(tableDefinition)
@@ -60,6 +62,26 @@ class BigQueryService(
             LOG.error("Table not found. \n$e")
         }
 
+    }
+
+    private fun updateSchemaIfNeeded(tableDefinition: TableDefinition, table: com.google.cloud.bigquery.Table) {
+        val existingFieldNames = table.getDefinition<StandardTableDefinition>().schema?.fields
+            ?.map { it.name }?.toSet() ?: emptySet()
+        val newFields = tableDefinition.schema.fields.filter { it.name !in existingFieldNames }
+
+        if (newFields.isEmpty()) {
+            LOG.info("Schema for ${tableDefinition.tableName} is up to date")
+            return
+        }
+
+        LOG.info("Adding ${newFields.size} new field(s) to ${tableDefinition.tableName}: ${newFields.map { it.name }}")
+        val updatedFields = (table.getDefinition<StandardTableDefinition>().schema?.fields?.toList() ?: emptyList()) + newFields
+        val updatedSchema = Schema.of(updatedFields)
+        val updatedTableInfo = table.toBuilder()
+            .setDefinition(StandardTableDefinition.newBuilder().setSchema(updatedSchema).build())
+            .build()
+        bigQuery.update(updatedTableInfo)
+        LOG.info("Schema for ${tableDefinition.tableName} updated successfully")
     }
 
     private fun createTableWithPartition(tableDefinition: TableDefinition) {
