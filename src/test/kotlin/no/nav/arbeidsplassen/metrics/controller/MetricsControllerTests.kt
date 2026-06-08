@@ -75,4 +75,71 @@ class MetricsControllerTest {
             status { isBadRequest() }
         }.andReturn()
     }
+
+    @Test
+    fun `receiveEnrichmentEvent should return 200 when valid enrichment event is received`() {
+        val event = MetricsEvent(
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = "Opprettet - Tilleggsdata",
+            eventData = mapOf("kilde" to "backend")
+        )
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": {"kilde":"backend"}
+            }
+        """.trimIndent()
+        every { metricsService.processEnrichmentEvent(any()) } returns Unit
+
+        val response = mockMvc.post("/api/v1/metrics/enrichment-event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = eventAsString
+        }.andExpect {
+            status { isOk() }
+        }.andReturn()
+
+        val responseEvent = objectMapper.readValue(
+            response.response.contentAsString,
+            MetricsEventResponse::class.java
+        )
+        verify(exactly = 1) {
+            metricsService.processEnrichmentEvent(match {
+                it.eventId == event.eventId &&
+                    it.eventName == event.eventName
+            })
+        }
+        assert(responseEvent.success)
+        assert(responseEvent.eventId == event.eventId)
+    }
+
+    @Test
+    fun `receiveEnrichmentEvent should return 400 when eventName is invalid`() {
+        val event = MetricsEvent(
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = "Ugyldig - Tilleggsdata",
+            eventData = mapOf("kilde" to "backend")
+        )
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": {"kilde":"backend"}
+            }
+        """.trimIndent()
+
+        val response = mockMvc.post("/api/v1/metrics/enrichment-event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = eventAsString
+        }.andExpect {
+            status { isBadRequest() }
+        }.andReturn()
+
+        verify(exactly = 0) { metricsService.processEvent(any()) }
+        assert(response.response.contentAsString.contains("Invalid enrichment eventName"))
+    }
 }
