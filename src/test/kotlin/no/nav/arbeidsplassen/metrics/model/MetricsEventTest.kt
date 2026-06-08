@@ -2,6 +2,7 @@ package no.nav.arbeidsplassen.metrics.model
 
 import no.nav.arbeidsplassen.metrics.bigquery.EnrichmentTableDefinition.Companion.AD_ID
 import no.nav.arbeidsplassen.metrics.bigquery.EnrichmentTableDefinition.Companion.ENRICHMENT_TYPE
+import no.nav.arbeidsplassen.metrics.bigquery.EnrichmentTableDefinition.Companion.IS_APPLICABLE
 import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_DATA
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -41,6 +42,34 @@ class MetricsEventTest {
     }
 
     @Test
+    fun `toEnrichmentBigQueryRow extracts is_applicable for UNDER_18`() {
+        val row = event.toEnrichmentBigQueryRow()
+        assertEquals(false, row[IS_APPLICABLE])
+    }
+
+    @Test
+    fun `toEnrichmentBigQueryRow extracts is_applicable for SUMMER_JOB`() {
+        val summerJobEvent = event.copy(eventData = mapOf(
+            "adId" to "abc123",
+            "enrichmentType" to "SUMMER_JOB",
+            "isSummerJob" to true
+        ))
+        val row = summerJobEvent.toEnrichmentBigQueryRow()
+        assertEquals(true, row[IS_APPLICABLE])
+    }
+
+    @Test
+    fun `toEnrichmentBigQueryRow sets is_applicable to null for unknown enrichment type`() {
+        val unknownTypeEvent = event.copy(eventData = mapOf(
+            "adId" to "abc123",
+            "enrichmentType" to "UNKNOWN_TYPE",
+            "someOtherBool" to true
+        ))
+        val row = unknownTypeEvent.toEnrichmentBigQueryRow()
+        assertNull(row[IS_APPLICABLE])
+    }
+
+    @Test
     fun `toEnrichmentBigQueryRow still includes full eventData as JSON`() {
         val row = event.toEnrichmentBigQueryRow()
         val eventDataJson = row[EVENT_DATA] as String
@@ -54,6 +83,7 @@ class MetricsEventTest {
         val row = eventWithNoData.toEnrichmentBigQueryRow()
         assertNull(row[AD_ID])
         assertNull(row[ENRICHMENT_TYPE])
+        assertNull(row[IS_APPLICABLE])
     }
 
     @Test
@@ -62,6 +92,7 @@ class MetricsEventTest {
         val row = eventWithPartialData.toEnrichmentBigQueryRow()
         assertNull(row[AD_ID])
         assertNull(row[ENRICHMENT_TYPE])
+        assertNull(row[IS_APPLICABLE])
     }
 }
 
