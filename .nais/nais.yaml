@@ -36,3 +36,8 @@ spec:
         - application: pam-stillingsok
           namespace: teampam
         - application: search-indexer
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
