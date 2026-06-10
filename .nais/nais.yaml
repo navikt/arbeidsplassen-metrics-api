@@ -41,3 +41,6 @@ spec:
       destinations:
         - id: loki
         - id: elastic
+    autoInstrumentation:
+      enabled: true
+      runtime: java
