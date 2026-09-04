@@ -22,7 +22,7 @@
         <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
 	<!-- Pinned new version for critical vulnerabilities -->
 	<!-- Remove when upgrading Spring Boot -->
-        <tomcat.version>11.0.22</tomcat.version>
+        <tomcat.version>11.0.25</tomcat.version>
     </properties>
 
     <repositories>
