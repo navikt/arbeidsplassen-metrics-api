@@ -26,6 +26,7 @@ class BigQueryService(
     private val bigQuery = BigQueryOptions.newBuilder().setProjectId(projectId).build().service
     private val metricsTable = MetricsTableDefinition()
     private val enrichmentTable = EnrichmentTableDefinition()
+    private val surveyTable = SurveyTableDefinition()
 
     companion object {
         private val bigQueryDatetimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
@@ -44,6 +45,13 @@ class BigQueryService(
             createTableIfNotExists(enrichmentTable)
         } catch (e: Exception) {
             LOG.error("Something failed when trying to fetch/create enrichment table - $e")
+            throw e
+        }
+
+        try {
+            createTableIfNotExists(surveyTable)
+        } catch (e: Exception) {
+            LOG.error("Something failed when trying to fetch/create survey table - $e")
             throw e
         }
     }
