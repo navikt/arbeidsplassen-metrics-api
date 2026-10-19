@@ -2,6 +2,7 @@ package no.nav.arbeidsplassen.metrics.controller
 
 import no.nav.arbeidsplassen.metrics.model.MetricsEvent
 import no.nav.arbeidsplassen.metrics.model.MetricsEventResponse
+import no.nav.arbeidsplassen.metrics.model.SurveyType
 import no.nav.arbeidsplassen.metrics.service.MetricsService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -75,4 +76,42 @@ class MetricsController(private val metricsService: MetricsService) {
             )
         }
     }
+
+    @PostMapping("/survey-event")
+    fun receiveSurveyEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
+        val validSurveyEventNames = SurveyType.entries.map { it.name }
+        if (event.eventName !in validSurveyEventNames) {
+            val message = "Invalid survey eventName '${event.eventName}'."
+            LOG.warn(message)
+            return ResponseEntity.badRequest().body(
+                MetricsEventResponse(
+                    success = false,
+                    message = message,
+                    eventId = event.eventId
+                )
+            )
+        }
+
+        return try {
+            metricsService.processSurveyEvent(event)
+            LOG.info("'${event.eventName}' survey event with eventId ${event.eventId} received and queued for processing")
+            ResponseEntity.ok(
+                MetricsEventResponse(
+                    success = true,
+                    message = "${event.eventName} event with eventId ${event.eventId} received and queued for processing",
+                    eventId = event.eventId
+                )
+            )
+        } catch (e: Exception) {
+            LOG.warn("Failed to process '${event.eventName}' event with eventId ${event.eventId}: ${e.message}")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                MetricsEventResponse(
+                    success = false,
+                    message = "Failed to process ${event.eventName} event with eventId ${event.eventId}: ${e.message}",
+                    eventId = event.eventId
+                )
+            )
+        }
+    }
+
 }

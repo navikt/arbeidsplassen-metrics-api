@@ -6,8 +6,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.arbeidsplassen.metrics.model.MetricsEvent
 import no.nav.arbeidsplassen.metrics.model.MetricsEventResponse
+import no.nav.arbeidsplassen.metrics.model.SurveyType
 import no.nav.arbeidsplassen.metrics.service.MetricsService
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -141,5 +144,81 @@ class MetricsControllerTest {
 
         verify(exactly = 0) { metricsService.processEvent(any()) }
         assert(response.response.contentAsString.contains("Invalid enrichment eventName"))
+    }
+
+    @Test
+    fun `receiveSurveyEvent should return 400 when eventName is invalid`() {
+        val validSurveyTypes = SurveyType.entries.map { it.name }
+
+        val event = MetricsEvent(
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = "UGYLDIG_SKJEMA",
+            eventData = mapOf("adId" to "123", "surveyId" to "survey-456")
+        )
+
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": {"adId":"123","surveyId":"survey-456"}
+            }
+        """.trimIndent()
+
+        val response = mockMvc.post("/api/v1/metrics/survey-event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = eventAsString
+        }.andExpect {
+            status { isBadRequest() }
+        }.andReturn()
+
+        assert(!validSurveyTypes.contains(event.eventName))
+        assert(response.response.contentAsString.contains("Invalid survey eventName"))
+        verify(exactly = 0) { metricsService.processSurveyEvent(any()) }
+    }
+
+    @ParameterizedTest
+    @EnumSource(SurveyType::class)
+    fun `receiveSurveyEvent should return 200 when valid SurveyType event is received`(surveyType: SurveyType) {
+        val event = MetricsEvent(
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = surveyType.name,
+            eventData = mapOf("adId" to "123", "surveyId" to "survey-456")
+        )
+
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": {"adId":"123","surveyId":"survey-456"}
+            }
+        """.trimIndent()
+
+        every { metricsService.processSurveyEvent(any()) } returns Unit
+
+        val response = mockMvc.post("/api/v1/metrics/survey-event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = eventAsString
+        }.andExpect {
+            status { isOk() }
+        }.andReturn()
+
+        val responseEvent = objectMapper.readValue(
+            response.response.contentAsString,
+            MetricsEventResponse::class.java
+        )
+
+        verify(exactly = 1) {
+            metricsService.processSurveyEvent(match {
+                it.eventId == event.eventId &&
+                it.eventName == event.eventName
+            })
+        }
+
+        assert(responseEvent.success)
+        assert(responseEvent.eventId == event.eventId)
     }
 }
