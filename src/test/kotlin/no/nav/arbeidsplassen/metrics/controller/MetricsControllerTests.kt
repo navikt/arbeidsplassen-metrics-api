@@ -148,8 +148,6 @@ class MetricsControllerTest {
 
     @Test
     fun `receiveSurveyEvent should return 400 when eventName is invalid`() {
-        val validSurveyTypes = SurveyType.entries.map { it.name }
-
         val event = MetricsEvent(
             eventId = UUID.randomUUID(),
             createdAt = OffsetDateTime.now(),
@@ -173,7 +171,7 @@ class MetricsControllerTest {
             status { isBadRequest() }
         }.andReturn()
 
-        assert(!validSurveyTypes.contains(event.eventName))
+        assert(!SurveyType.isValid(event.eventName))
         assert(response.response.contentAsString.contains("Invalid survey eventName"))
         verify(exactly = 0) { metricsService.processSurveyEvent(any()) }
     }

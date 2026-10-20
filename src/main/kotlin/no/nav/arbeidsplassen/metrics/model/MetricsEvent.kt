@@ -57,8 +57,3 @@ data class MetricsEventResponse(
     val message: String,
     val eventId: UUID? = null
 )
-
-// https://github.com/navikt/pam-survey-api/blob/main/src/main/kotlin/no/nav/arbeidsplassen/survey/survey/SurveyType.kt
-enum class SurveyType {
-    RECRUITMENT_OUTCOME,
-}
