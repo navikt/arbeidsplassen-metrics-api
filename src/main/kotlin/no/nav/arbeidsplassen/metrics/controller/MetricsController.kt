@@ -82,7 +82,7 @@ class MetricsController(private val metricsService: MetricsService) {
             )
         } catch (e: Exception) {
             val message = "Failed to process event type: $eventType - '${event.eventName}' with eventId ${event.eventId}: ${e.message}"
-            LOG.warn(message)
+            LOG.warn(message, e)
 
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 MetricsEventResponse(

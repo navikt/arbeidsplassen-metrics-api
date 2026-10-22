@@ -9,6 +9,7 @@ import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.E
 import no.nav.arbeidsplassen.metrics.bigquery.MetricsTableDefinition.Companion.EVENT_NAME
 import no.nav.arbeidsplassen.metrics.bigquery.SurveyTableDefinition
 import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 import java.util.UUID
 
 data class MetricsEvent(
@@ -17,8 +18,9 @@ data class MetricsEvent(
     val eventName: String,
     val eventData: Map<String, Any>?
 ) {
+    val objectMapper = jacksonObjectMapper()
+
     fun toBigQueryRow(): HashMap<String, Any?> {
-        val objectMapper = jacksonObjectMapper()
         val eventDataJson = objectMapper.writeValueAsString(eventData)
         return hashMapOf(
             EVENT_ID to eventId.toString(),
@@ -42,12 +44,18 @@ data class MetricsEvent(
     }
 
     fun toSurveyBigQueryRow(): HashMap<String, Any?> {
+        val answeredAtToBQFormat = try {
+            eventData?.get("answeredAt")
+                ?.toString()
+                ?.let(OffsetDateTime::parse)
+                ?.toBigQueryDateTime()
+        } catch (e: DateTimeParseException) { throw e }
         return toBigQueryRow().also { row ->
             row[SurveyTableDefinition.SURVEY_ID] = eventData?.get("surveyId")?.toString()
             row[SurveyTableDefinition.AD_ID] = eventData?.get("adId")?.toString()
-            row[SurveyTableDefinition.METADATA] = eventData?.get("metadata")?.toString()
-            row[SurveyTableDefinition.ANSWER] = eventData?.get("answer")?.toString()
-            row[SurveyTableDefinition.ANSWERED_AT] = eventData?.get("answeredAt")?.toString()
+            row[SurveyTableDefinition.METADATA] = eventData?.get("metadata")?.let { objectMapper.writeValueAsString(it) }
+            row[SurveyTableDefinition.ANSWER] = eventData?.get("answer")?.let { objectMapper.writeValueAsString(it) }
+            row[SurveyTableDefinition.ANSWERED_AT] = answeredAtToBQFormat
         }
     }
 }
