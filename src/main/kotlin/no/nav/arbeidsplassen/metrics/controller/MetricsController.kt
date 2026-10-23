@@ -2,7 +2,6 @@ package no.nav.arbeidsplassen.metrics.controller
 
 import no.nav.arbeidsplassen.metrics.model.MetricsEvent
 import no.nav.arbeidsplassen.metrics.model.MetricsEventResponse
-import no.nav.arbeidsplassen.metrics.model.SurveyType
 import no.nav.arbeidsplassen.metrics.service.MetricsService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -46,18 +45,6 @@ class MetricsController(private val metricsService: MetricsService) {
 
     @PostMapping("/survey-event")
     fun receiveSurveyEvent(@RequestBody event: MetricsEvent): ResponseEntity<MetricsEventResponse> {
-        if (!SurveyType.isValid(event.eventName)) {
-            val message = "Invalid survey eventName '${event.eventName}'."
-            LOG.warn(message)
-            return ResponseEntity.badRequest().body(
-                MetricsEventResponse(
-                    success = false,
-                    message = message,
-                    eventId = event.eventId
-                )
-            )
-        }
-
         return handleEventRequest(event, "survey") {
             metricsService.processSurveyEvent(event)
         }
