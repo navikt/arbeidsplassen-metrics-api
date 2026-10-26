@@ -142,4 +142,44 @@ class MetricsControllerTest {
         verify(exactly = 0) { metricsService.processEvent(any()) }
         assert(response.response.contentAsString.contains("Invalid enrichment eventName"))
     }
+
+    @Test
+    fun `receiveSurveyEvent should return 200 when valid survey event is received`() {
+        val event = MetricsEvent(
+            eventId = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            eventName = "Some survey",
+            eventData = mapOf("adId" to "123", "surveyId" to "survey-456")
+        )
+        val eventAsString = """
+            {
+                "eventId": "${event.eventId}",
+                "createdAt": "${event.createdAt}",
+                "eventName": "${event.eventName}",
+                "eventData": {"adId":"123","surveyId":"survey-456"}
+            }
+        """.trimIndent()
+
+        every { metricsService.processSurveyEvent(any()) } returns Unit
+
+        val response = mockMvc.post("/api/v1/metrics/survey-event") {
+            contentType = MediaType.APPLICATION_JSON
+            content = eventAsString
+        }.andExpect {
+            status { isOk() }
+        }.andReturn()
+
+        val responseEvent = objectMapper.readValue(
+            response.response.contentAsString,
+            MetricsEventResponse::class.java
+        )
+        verify(exactly = 1) {
+            metricsService.processSurveyEvent(match {
+                it.eventId == event.eventId &&
+                it.eventName == event.eventName
+            })
+        }
+        assert(responseEvent.success)
+        assert(responseEvent.eventId == event.eventId)
+    }
 }
