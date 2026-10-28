@@ -28,3 +28,14 @@ jobs:
       NAIS_VARS: .nais/dev.yaml
       JAVA_VERSION: 25
       SKIP_DRAFT_RELEASE: ${{ github.ref_name != 'main' }}
+  deploy-dev-views:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    needs: [ call-workflow ]
+    uses: ./.github/workflows/deploy-views.yml
+    secrets: inherit
+    with:
+      cluster: dev-gcp
+      project: arbeidsplassen-dev-9473
