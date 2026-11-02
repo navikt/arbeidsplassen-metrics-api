@@ -1,0 +1,22 @@
+name: Deploy BigQuery Views
+on:
+  workflow_call:
+    inputs:
+      cluster:
+        required: true
+        type: string
+      project:
+        required: true
+        type: string
+
+jobs:
+  deploy-views:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: ${{ inputs.cluster }}
+          RESOURCE: .nais/views/latest-recruitment-outcome-per-ad.yml
+          VAR: project=${{ inputs.project }}
+          PRINT_PAYLOAD: true

@@ -1,0 +1,37 @@
+apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
+kind: BigQueryTable
+metadata:
+  name: latest-recruitment-outcome-per-ad
+  namespace: arbeidsplassen
+  labels:
+    team: arbeidsplassen
+  annotations:
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/project-id: {{project}}
+    cnrm.cloud.google.com/state-into-spec: merge
+
+spec:
+  resourceID: latest_recruitment_outcome_per_ad
+  description: "Nyeste besvarelse på rekrutteringsutfall for en annonse"
+  datasetRef:
+    external: arbeidsplassen_metrics
+  view:
+    useLegacySql: false
+    query: |-
+      SELECT survey_id, ad_id, metadata, answer, answered_at
+      FROM (
+        SELECT
+          survey_id,
+          ad_id,
+          metadata,
+          answer,
+          answered_at,
+          ROW_NUMBER() OVER (
+            PARTITION BY ad_id
+            ORDER BY answered_at DESC, created_at DESC, event_id DESC
+          ) AS row_number
+        FROM `arbeidsplassen_metrics.survey_events`
+        WHERE ad_id IS NOT NULL
+          AND answered_at IS NOT NULL
+      )
+      WHERE row_number = 1

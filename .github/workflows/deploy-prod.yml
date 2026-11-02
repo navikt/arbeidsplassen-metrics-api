@@ -21,3 +21,13 @@ jobs:
       NAIS_RESOURCE: .nais/nais.yaml
       NAIS_VARS: .nais/prod.yaml
       VERSION_TAG: ${{ inputs.version }}
+  deploy-prod-views:
+    permissions:
+      id-token: write
+      contents: read
+    needs: [ call-workflow ]
+    uses: ./.github/workflows/deploy-views.yml
+    secrets: inherit
+    with:
+      cluster: prod-gcp
+      project: arbeidsplassen-prod-90dd
